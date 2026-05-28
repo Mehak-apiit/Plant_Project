@@ -4,6 +4,7 @@ import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
+import subCategoryRoutes from "./routes/subCategoryRoutes.js";
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ connectDB();
 // ROUTES
 app.use("/api/auth", authRoutes);
 app.use("/api/categories", categoryRoutes);
+app.use("/api/subcategories", subCategoryRoutes);
 app.use("/api/products", productRoutes);
 
 // TEST THE ROUTE

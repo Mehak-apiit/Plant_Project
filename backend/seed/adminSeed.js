@@ -16,9 +16,9 @@ const createAdmin = async () => {
     }
 
     const admin = await User.create({
-      name: "Admin",
-      email: "admin@test.com",
-      password: "123456",
+      name: "Renu",
+      email: "renu@test.com",
+      password: "0001111",
       role: "admin",
     });
 
