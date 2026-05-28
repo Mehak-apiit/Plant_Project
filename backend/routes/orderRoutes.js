@@ -4,6 +4,7 @@ import {
   getMyOrders,
   getAllOrders,
   updateOrderStatus,
+   checkout,
 
 } from "../controllers/orderController.js";
 
@@ -16,6 +17,7 @@ const router = express.Router();
 // USER
 router.post("/", protect, createOrder);
 router.get("/my-orders", protect, getMyOrders);
+router.post("/checkout", protect, checkout);
 
 // ADMIN SARE ORDERS DEKH SAKTA HAI
 router.get("/", protect, isAdmin, getAllOrders);

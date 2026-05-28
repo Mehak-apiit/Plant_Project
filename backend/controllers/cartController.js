@@ -4,6 +4,7 @@ import Cart from "../models/cartModel.js";
 export const addToCart = async (req, res) => {
   try {
     const { product, quantity } = req.body;
+    console.log(req.body);
 
     let cart = await Cart.findOne({ user: req.user._id });
 
