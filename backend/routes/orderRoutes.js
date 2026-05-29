@@ -5,6 +5,7 @@ import {
   getAllOrders,
   updateOrderStatus,
    checkout,
+   getOrderById,
 
 } from "../controllers/orderController.js";
 
@@ -18,6 +19,7 @@ const router = express.Router();
 router.post("/", protect, createOrder);
 router.get("/my-orders", protect, getMyOrders);
 router.post("/checkout", protect, checkout);
+router.get("/:id", protect, getOrderById);
 
 // ADMIN SARE ORDERS DEKH SAKTA HAI
 router.get("/", protect, isAdmin, getAllOrders);

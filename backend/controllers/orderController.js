@@ -106,3 +106,27 @@ export const checkout = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// GET ORDER BY ID (USER)
+export const getOrderById = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id)
+      .populate("orderItems.product")
+      .populate("user", "name email");
+
+    // 1. check order exists
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    // 2. security check (VERY IMPORTANT)
+    if (order.user._id.toString() !== req.user._id.toString()) {
+      return res.status(401).json({ message: "Not authorized" });
+    }
+
+    res.json(order);
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
