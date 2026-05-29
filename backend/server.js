@@ -7,6 +7,7 @@ import categoryRoutes from "./routes/categoryRoutes.js";
 import subCategoryRoutes from "./routes/subCategoryRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
+import paymentRoutes from "./routes/paymentRoutes.js";
 
 dotenv.config();
 
@@ -25,6 +26,7 @@ app.use("/api/subcategories", subCategoryRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/cart", cartRoutes);
+app.use("/api/payment", paymentRoutes);
 
 // TEST THE ROUTE
 app.get("/", (req, res) => {
