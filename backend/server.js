@@ -9,7 +9,7 @@ import orderRoutes from "./routes/orderRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
-
+import userRoutes from "./routes/userRoutes.js";
 dotenv.config();
 
 const app = express();
@@ -29,6 +29,7 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/users", userRoutes);
 
 // TEST THE ROUTE
 app.get("/", (req, res) => {
