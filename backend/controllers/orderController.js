@@ -35,11 +35,34 @@ export const getMyOrders = async (req, res) => {
 // ADMIN: GET ALL ORDERS
 export const getAllOrders = async (req, res) => {
   try {
-    const orders = await Order.find()
-      .populate("user", "name email")
-      .populate("orderItems.product");
+    const { status, page = 1, limit = 10 } = req.query;
 
-    res.json(orders);
+    // FILTER OBJECT
+    let filter = {};
+
+    // 1. Filter by status
+    if (status) {
+      filter.status = status;
+    }
+
+    // 2. Query DB with filters
+    const orders = await Order.find(filter)
+      .populate("user", "name email")
+      .populate("orderItems.product")
+      .sort({ createdAt: -1 })
+      .limit(limit * 1)
+      .skip((page - 1) * limit);
+
+    // 3. Count total
+    const total = await Order.countDocuments(filter);
+
+    res.json({
+      total,
+      page: Number(page),
+      pages: Math.ceil(total / limit),
+      orders,
+    });
+
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
