@@ -5,12 +5,12 @@ import {
 } from "../controllers/categoryController.js";
 
 import { protect } from "../middleware/authMiddleware.js";
-import { isAdmin } from "../middleware/roleMiddleware.js";
+import { admin} from "../middleware/roleMiddleware.js";
 
 const router = express.Router();
 
 // ADMIN ONLY
-router.post("/", protect, isAdmin, createCategory);
+router.post("/", protect, admin, createCategory);
 
 // PUBLIC
 router.get("/", getCategories);

@@ -5,11 +5,11 @@ import {
 } from "../controllers/subCategoryController.js";
 
 import { protect } from "../middleware/authMiddleware.js";
-import { isAdmin } from "../middleware/roleMiddleware.js";
+import { admin } from "../middleware/roleMiddleware.js";
 
 const router = express.Router();
 
-router.post("/", protect, isAdmin, createSubCategory);
+router.post("/", protect, admin, createSubCategory);
 router.get("/", getSubCategories);
 
 export default router;

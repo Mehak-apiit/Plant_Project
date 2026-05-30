@@ -1,7 +1,7 @@
 import express from "express";
 import { registerUser, loginUser } from "../controllers/authController.js";
 import { protect } from "../middleware/authMiddleware.js";
-import { isAdmin } from "../middleware/roleMiddleware.js";
+import { admin } from "../middleware/roleMiddleware.js";
 
 const router = express.Router();
 
@@ -17,7 +17,7 @@ router.get("/profile", protect, (req, res) => {
   });
 });
 // ONLY ADMIN ROUTE
-router.get("/admin-test", protect, isAdmin, (req, res) => {
+router.get("/admin-test", protect, admin, (req, res) => {
   res.json({
     message: "Welcome Admin 🔥",
     user: req.user,

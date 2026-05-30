@@ -5,12 +5,12 @@ import {
 } from "../controllers/productController.js";
 
 import { protect } from "../middleware/authMiddleware.js";
-import { isAdmin } from "../middleware/roleMiddleware.js";
+import { admin } from "../middleware/roleMiddleware.js";
 
 const router = express.Router();
 
 // ADMIN ONLY CREATE PRODUCT
-router.post("/", protect, isAdmin, createProduct);
+router.post("/", protect, admin, createProduct);
 
 // PUBLIC GET PRODUCTS
 router.get("/", getProducts);

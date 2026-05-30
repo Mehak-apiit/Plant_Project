@@ -6,6 +6,7 @@ export const protect = async (req, res, next) => {
   try {
     // GET TOKEN FROM HEADER
     const authHeader = req.headers.authorization;
+    console.log(req.headers.authorization);
 
     // CHECK TOKEN EXISTS
     if (!authHeader || !authHeader.startsWith("Bearer")) {
@@ -20,6 +21,8 @@ export const protect = async (req, res, next) => {
 
     //  GET USER FROM DB
     const user = await User.findById(decoded.id).select("-password");
+    console.log("DECODED ID:", decoded.id);
+    console.log("USER FROM DB:", user);
 
     // ATTACH USER TO REQUEST
     req.user = user;
