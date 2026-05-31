@@ -12,7 +12,8 @@ router.get("/", protect, admin, getAllUsers);
 // DELETE USER (ADMIN)
 router.delete("/:id", protect, admin, deleteUser);
 
-export default router;
+
 
 // UPDATE ROLE (ADMIN)
 router.put("/:id/role", protect, admin, updateUserRole);
+export default router;

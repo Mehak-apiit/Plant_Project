@@ -1,21 +1,29 @@
 export const admin = (req, res, next) => {
-  if (req.user && req.user.role === "admin") {
-    next();
-  } else {
-    res.status(403).json({ message: "Not authorized as admin" });
+  // support both cases: Admin and admin
+  if (req.user?.role !== "Admin" && req.user?.role !== "admin") {
+    return res.status(403).json({ message: "Admin only access" });
   }
+  if (typeof next === "function") return next();
+  return res.end();
 };
 
 export const isStaff = (req, res, next) => {
-  if (req.user.role !== "staff") {
+  if (req.user?.role !== "staff" && req.user?.role !== "Staff") {
     return res.status(403).json({ message: "Staff only access" });
   }
-  next();
+  if (typeof next === "function") return next();
+  return res.end();
 };
 
 export const isAdminOrStaff = (req, res, next) => {
-  if (req.user.role !== "admin" && req.user.role !== "staff") {
+  if (
+    req.user?.role !== "admin" &&
+    req.user?.role !== "Admin" &&
+    req.user?.role !== "staff" &&
+    req.user?.role !== "Staff"
+  ) {
     return res.status(403).json({ message: "Access denied" });
   }
-  next();
+  if (typeof next === "function") return next();
+  return res.end();
 };

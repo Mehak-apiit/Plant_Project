@@ -1,57 +1,113 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
-const userSchema = new mongoose.Schema(
-  {
-    name: {
-      type: String,
-      required: true,
-    },
+const addressSchema = new mongoose.Schema({
+  street: { type: String, required: true },
+  city: { type: String, required: true },
+  state: { type: String, required: true },
+  postalCode: { type: String, required: true },
+  country: { type: String, required: true },
+  isDefault: { type: Boolean, default: false }
+}, { _id: true });
 
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-      lowercase: true,
-    },
-
-    password: {
-      type: String,
-      required: true,
-    },
-
-    role: {
-      type: String,
-      enum: ["admin", "staff", "customer"],
-      default: "customer",
-    },
-
-    phone: {
-      type: String,
-    },
-
-    isActive: {
-      type: Boolean,
-      default: true,
-    },
+const userSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    trim: true
   },
-  {
-    timestamps: true,
+
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    lowercase: true,
+    trim: true
+  },
+
+  password: {
+    type: String,
+    required: true,
+    select: false
+  },
+
+  role: {
+    type: String,
+    enum: ["Super Admin", "Admin", "Vendor", "Customer", "Delivery Staff"],
+    default: "Customer"
+  },
+
+  isEmailVerified: {
+    type: Boolean,
+    default: false
+  },
+
+  verificationToken: {
+    type: String,
+    select: false
+  },
+
+  passwordResetToken: {
+    type: String,
+    select: false
+  },
+
+  passwordResetExpires: {
+    type: Date,
+    select: false
+  },
+
+  refreshToken: {
+    type: String,
+    select: false
+  },
+
+  profileImage: {
+    type: String,
+    default: ""
+  },
+
+  phone: {
+    type: String,
+    default: ""
+  },
+
+  addresses: [addressSchema],
+
+  status: {
+    type: String,
+    enum: ["active", "suspended"],
+    default: "active"
+  },
+
+  isDeleted: {
+    type: Boolean,
+    default: false
   }
-);
 
-
-userSchema.pre("save", async function () {
-  if (!this.isModified("password")) return;
-
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
+}, {
+  timestamps: true
 });
-//METHOD TO COMPARE ENTERED PASSWORD WITH HASHED PASSWORD IN DB
-userSchema.methods.matchPassword = async function (enteredPassword) {
+
+
+// 🔐 PASSWORD HASHING
+userSchema.pre("save", async function (next) {
+  try {
+    if (!this.isModified("password")) return next();
+
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
+
+// 🔑 PASSWORD COMPARE
+userSchema.methods.comparePassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-const User = mongoose.model("User", userSchema);
-
-export default User;
+export default mongoose.model("User", userSchema);
