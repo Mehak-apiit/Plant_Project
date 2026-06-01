@@ -10,6 +10,7 @@ import cartRoutes from "./routes/cartRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import vendorRoutes from "./routes/vendorRoutes.js";
 dotenv.config();
 
 const app = express();
@@ -30,6 +31,7 @@ app.use("/api/cart", cartRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/v1/vendor", vendorRoutes);
 
 // TEST THE ROUTE
 app.get("/", (req, res) => {
