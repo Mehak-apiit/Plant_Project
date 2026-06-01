@@ -108,3 +108,72 @@ export const verifyEmail = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+
+export const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // 🔥 TOKEN GENERATE
+    const resetToken = crypto.randomBytes(32).toString("hex");
+
+    // 🔐 SAVE IN DB
+    user.passwordResetToken = resetToken;
+    user.passwordResetExpires = Date.now() + 10 * 60 * 1000; // 10 min
+
+    await user.save();
+
+    // 🔗 RESET LINK
+    const resetLink = `http://localhost:5000/api/auth/reset-password/${resetToken}`;
+
+    // 📩 SEND EMAIL
+    await sendEmail(
+      email,
+      "Reset Your Password",
+      `<h2>Password Reset</h2>
+       <p>Click below to reset your password:</p>
+       <a href="${resetLink}">Reset Password</a>`
+    );
+
+    res.json({ message: "Reset link sent to email" });
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+    
+  }
+};
+export const resetPassword = async (req, res) => {
+  try {
+    const { token } = req.params;
+    const { password } = req.body;
+
+    const user = await User.findOne({
+      passwordResetToken: token,
+      passwordResetExpires: { $gt: Date.now() }
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: "Invalid or expired token" });
+    }
+
+    // 🔐 NEW PASSWORD SET
+    user.password = password;
+
+    // 🧹 CLEAR TOKEN
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+
+    await user.save();
+
+    res.json({ message: "Password reset successful" });
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

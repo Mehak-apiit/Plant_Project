@@ -24,6 +24,6 @@ export const isAdminOrStaff = (req, res, next) => {
   ) {
     return res.status(403).json({ message: "Access denied" });
   }
-  if (typeof next === "function") return next();
-  return res.end();
+
+  next();
 };
