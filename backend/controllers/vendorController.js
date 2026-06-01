@@ -95,3 +95,16 @@ export const updateVendorStatus = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+export const getAllVendors = async (req, res) => {
+  try {
+    const vendors = await Vendor.find().populate("user", "name email");
+
+    res.json({
+      count: vendors.length,
+      vendors
+    });
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

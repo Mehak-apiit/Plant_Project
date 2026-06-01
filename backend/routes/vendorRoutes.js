@@ -3,7 +3,8 @@ import {
   applyVendor,
   getMyVendor,
   updateVendor,
-  updateVendorStatus
+  updateVendorStatus,
+  getAllVendors,
 } from "../controllers/vendorController.js";
 
 import { protect } from "../middleware/authMiddleware.js";
@@ -18,5 +19,6 @@ router.put("/update", protect, updateVendor);
 
 // admin route
 router.put("/status/:id", protect, admin, updateVendorStatus);
+router.get("/all", protect, admin, getAllVendors);
 
 export default router;

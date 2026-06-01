@@ -14,6 +14,13 @@ export const sendEmail = async (to, subject, html) => {
         rejectUnauthorized: false, // 🔥 fixes certificate error (dev only)
       },
     });
+    transporter.verify((error, success) => {
+      if (error) {
+        console.error("❌ SMTP connection error:", error.message);
+      } else {
+        console.log("✅ SMTP connection successful");
+      }
+    });
 
     const mailOptions = {
       from: `"My App 🚀" <${process.env.EMAIL_USER}>`,
