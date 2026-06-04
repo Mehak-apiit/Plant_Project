@@ -412,6 +412,52 @@ Protected routes.
 
 ---
 
+## 📝 Review Routes (`/api/reviews`)
+
+Controller: `backend/controllers/reviewController.js`
+
+- **POST** `/` *(Protected)*
+  - Create a review (one review per user per product)
+  - Body: `{ product, vendor, rating, reviewText, images }`
+    - `rating`: 1 to 5
+    - `images`: array of strings (URLs/ids)
+
+- **GET** `/:productId`
+  - Get reviews for a product (public; returns only `isApproved: true`)
+  - Supports query:
+    - `page` (default: 1)
+    - `limit` (default: 5)
+    - `rating` (optional; filter by rating)
+
+- **PUT** `/:id` *(Protected)*
+  - Update your review
+  - Body: `{ rating, reviewText, images }`
+
+- **DELETE** `/:id` *(Protected)*
+  - Delete your review
+
+> Note: Controller has extra functions for approval/vendor review, but `reviewRoutes.js` currently only exposes the 4 endpoints above.
+
+---
+
+## ❤️ Wishlist Routes (`/api/wishlist`)
+
+Controller: `backend/controllers/wishlistController.js`
+
+All routes are **protected**.
+
+- **POST** `/`
+  - Add a product to your wishlist
+  - Body: `{ productId }`
+
+- **GET** `/`
+  - Get your wishlist (populates `products`)
+
+- **DELETE** `/:productId`
+  - Remove a product from your wishlist
+
+---
+
 ## 🧾 Dummy Output Examples
 
 ### 1) Login success
