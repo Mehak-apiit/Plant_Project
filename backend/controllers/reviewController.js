@@ -39,14 +39,32 @@ export const createReview = async (req, res) => {
 
 
 // GET REVIEWS OF PRODUCT
-export const getProductReviews = async (req, res) => {
+export const getProductReviewsAdvanced = async (req, res) => {
   try {
-    const reviews = await Review.find({
+    const { page = 1, limit = 5, rating } = req.query;
+
+    let filter = {
       product: req.params.productId,
       isApproved: true
-    }).populate("user", "name");
+    };
 
-    res.json(reviews);
+    if (rating) {
+      filter.rating = Number(rating);
+    }
+
+    const reviews = await Review.find(filter)
+      .skip((page - 1) * limit)
+      .limit(Number(limit))
+      .sort({ createdAt: -1 })
+      .populate("user", "name");
+
+    const total = await Review.countDocuments(filter);
+
+    res.json({
+      total,
+      page,
+      reviews
+    });
 
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -94,4 +112,74 @@ const updateProductRating = async (productId) => {
     ratingsCount: numReviews,
     ratingsAverage: avgRating
   });
+};
+//UPDATE REVIEW
+export const updateReview = async (req, res) => {
+  try {
+    const { rating, reviewText, images } = req.body;
+
+    const review = await Review.findById(req.params.id);
+
+    if (!review) {
+      return res.status(404).json({ message: "Review not found" });
+    }
+
+    // owner check
+    if (review.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Not allowed" });
+    }
+
+    review.rating = rating || review.rating;
+    review.reviewText = reviewText || review.reviewText;
+    review.images = images || review.images;
+
+    await review.save();
+
+    await updateProductRating(review.product);
+
+    res.json({
+      success: true,
+      review
+    });
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// ADMIN APPROVE OR REJECT REVIEW
+export const toggleReviewApproval = async (req, res) => {
+  try {
+    const review = await Review.findById(req.params.id);
+
+    if (!review) {
+      return res.status(404).json({ message: "Review not found" });
+    }
+
+    review.isApproved = !review.isApproved;
+    await review.save();
+
+    res.json({
+      message: `Review ${review.isApproved ? "approved" : "rejected"}`
+    });
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// VENDOR REVIEWS
+export const getVendorReviews = async (req, res) => {
+  try {
+    const vendorId = req.user._id;
+
+    const reviews = await Review.find({ vendor: vendorId })
+      .populate("product", "name")
+      .populate("user", "name email");
+
+    res.json(reviews);
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
