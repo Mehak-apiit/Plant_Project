@@ -458,6 +458,48 @@ All routes are **protected**.
 
 ---
 
+## 🎟️ Coupon Routes (`/api/coupen`)
+
+> Note: In `backend/server.js`, coupons are mounted at **`/api/coupen`** (spelled `coupen`).
+
+Controller: `backend/controllers/couponController.js`
+
+### Admin
+
+- **POST** `/` *(admin only; create coupon)*
+  - Body: 
+    - `code`
+    - `discountType` (`percentage` | `fixed`)
+    - `discountAmount`
+    - `minOrderAmount`
+    - `maxDiscountAmount` (used for percentage coupons; optional)
+    - `startDate`, `endDate`
+    - `maxUsageLimit`
+    - `limitPerUser`
+    - `isActive`
+
+- **GET** `/` *(admin; list all coupons)*
+- **PUT** `/:id` *(admin; update coupon)*
+- **DELETE** `/:id` *(admin; delete coupon)*
+
+### User
+
+- **POST** `/apply` *(typically called while checking out)*
+  - Body: `{ code, cartTotal }`
+  - Validations:
+    - coupon must exist and be `isActive`
+    - current date must be within `startDate`..`endDate`
+    - `cartTotal` must be `>= minOrderAmount`
+    - global `usageCount` must be `< maxUsageLimit`
+  - Discount calculation:
+    - `percentage`: `(cartTotal * discountAmount) / 100`, capped by `maxDiscountAmount` (if > 0)
+    - `fixed`: `discountAmount`
+  - Response (on success):
+    - `{ message, discount, finalAmount }`
+  - Also increments coupon `usageCount` by 1.
+
+---
+
 ## 🧾 Dummy Output Examples
 
 ### 1) Login success
