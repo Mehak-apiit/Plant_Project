@@ -1,127 +1,76 @@
 import Order from "../models/orderModel.js";
 import Cart from "../models/cartModel.js";
+import Coupon from "../models/couponModel.js";
 
-// CREATE ORDER (USER)
-export const createOrder = async (req, res) => {
-  try {
-    const { orderItems, totalPrice, shippingAddress } = req.body;
-
-    const order = await Order.create({
-      user: req.user._id,
-      orderItems,
-      totalPrice,
-      shippingAddress,
-    });
-
-    res.status(201).json(order);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+// Generate Order Number
+const generateOrderNumber = () => {
+  return "ORD-" + Date.now();
 };
 
-// GET USER ORDERS
-export const getMyOrders = async (req, res) => {
-  try {
-    const orders = await Order.find({ user: req.user._id }).populate(
-      "orderItems.product"
-    );
-
-    res.json(orders);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-// ADMIN: GET ALL ORDERS
-export const getAllOrders = async (req, res) => {
-  try {
-    const { status, page = 1, limit = 10 } = req.query;
-
-    // FILTER OBJECT
-    let filter = {};
-
-    // 1. Filter by status
-    if (status) {
-      filter.status = status;
-    }
-
-    // 2. Query DB with filters
-    const orders = await Order.find(filter)
-      .populate("user", "name email")
-      .populate("orderItems.product")
-      .sort({ createdAt: -1 })
-      .limit(limit * 1)
-      .skip((page - 1) * limit);
-
-    // 3. Count total
-    const total = await Order.countDocuments(filter);
-
-    res.json({
-      total,
-      page: Number(page),
-      pages: Math.ceil(total / limit),
-      orders,
-    });
-
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-// UPDATE ORDER STATUS (ADMIN)
-export const updateOrderStatus = async (req, res) => {
-  try {
-    const { status } = req.body;
-
-    const order = await Order.findById(req.params.id);
-
-    if (!order) {
-      return res.status(404).json({ message: "Order not found" });
-    }
-
-    order.status = status;
-
-    const updatedOrder = await order.save();
-
-    res.json(updatedOrder);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+// CHECKOUT (MAIN API)
 export const checkout = async (req, res) => {
   try {
-    const { shippingAddress } = req.body;
+    const { shippingAddress, paymentMethod, couponCode } = req.body;
 
     const cart = await Cart.findOne({ user: req.user._id }).populate(
-      "cartItems.product"
+      "items.product"
     );
 
-    console.log("CART FOUND:", cart);
-
-    if (!cart) {
-      return res.status(400).json({ message: "Cart not found" });
+    if (!cart || cart.items.length === 0) {
+      return res.status(400).json({ message: "Cart empty" });
     }
 
-    if (!cart.cartItems || cart.cartItems.length === 0) {
-      return res.status(400).json({ message: "Cart is empty" });
-    }
-    console.log(cart.cartItems[0].product);
+    let subtotal = 0;
 
-    const totalPrice = cart.cartItems.reduce((acc, item) => {
-      return acc + item.product.price * item.quantity;
-    }, 0);
+    const orderItems = cart.items.map((item) => {
+      subtotal += item.product.price * item.quantity;
 
-    const order = await Order.create({
-      user: req.user._id,
-      orderItems: cart.cartItems.map((item) => ({
+      return {
         product: item.product._id,
+        name: item.product.name,
+        price: item.product.price,
         quantity: item.quantity,
-      })),
-      totalPrice,
-      shippingAddress,
+        vendor: item.product.vendor,
+      };
     });
 
-    cart.cartItems = [];
+    let discount = 0;
+    let couponDoc = null;
+
+    // 🎟️ APPLY COUPON
+    if (couponCode) {
+      couponDoc = await Coupon.findOne({ code: couponCode });
+
+      if (couponDoc) {
+        if (couponDoc.discountType === "percentage") {
+          discount = (subtotal * couponDoc.discountAmount) / 100;
+        } else {
+          discount = couponDoc.discountAmount;
+        }
+      }
+    }
+
+    const tax = 0;
+    const shippingFee = 50;
+
+    const totalAmount = subtotal + tax + shippingFee - discount;
+
+    const order = await Order.create({
+      orderNumber: generateOrderNumber(),
+      user: req.user._id,
+      orderItems,
+      subtotal,
+      tax,
+      shippingFee,
+      discount,
+      totalAmount,
+      couponUsed: couponDoc?._id,
+      shippingAddress,
+      paymentMethod,
+    });
+
+    // clear cart
+    cart.items = [];
     await cart.save();
 
     res.status(201).json(order);
@@ -130,45 +79,41 @@ export const checkout = async (req, res) => {
   }
 };
 
-// GET ORDER BY ID (USER)
-export const getOrderById = async (req, res) => {
-  try {
-    const order = await Order.findById(req.params.id)
-      .populate("orderItems.product")
-      .populate("user", "name email");
-
-    // 1. check order exists
-    if (!order) {
-      return res.status(404).json({ message: "Order not found" });
-    }
-
-    // 2. security check (VERY IMPORTANT)
-    if (order.user._id.toString() !== req.user._id.toString()) {
-      return res.status(401).json({ message: "Not authorized" });
-    }
-
-    res.json(order);
-
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+//  USER ORDERS
+export const getMyOrders = async (req, res) => {
+  const orders = await Order.find({ user: req.user._id }).sort({
+    createdAt: -1,
+  });
+  res.json(orders);
 };
 
+//  SINGLE ORDER (USER)
+export const getOrderById = async (req, res) => {
+  const order = await Order.findById(req.params.id);
 
+  if (!order) return res.status(404).json({ message: "Not found" });
 
-// GET SINGLE ORDER (ADMIN)
-export const getOrderByIdADMIN = async (req, res) => {
-  try {
-    const order = await Order.findById(req.params.id)
-      .populate("user", "name email")
-      .populate("orderItems.product");
-
-    if (!order) {
-      return res.status(404).json({ message: "Order not found" });
-    }
-
-    res.json(order);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+  if (order.user.toString() !== req.user._id.toString()) {
+    return res.status(401).json({ message: "Not authorized" });
   }
+
+  res.json(order);
+};
+
+// ADMIN: ALL ORDERS
+export const getAllOrders = async (req, res) => {
+  const orders = await Order.find().populate("user", "name email");
+  res.json(orders);
+};
+
+//  UPDATE STATUS
+export const updateOrderStatus = async (req, res) => {
+  const order = await Order.findById(req.params.id);
+
+  if (!order) return res.status(404).json({ message: "Not found" });
+
+  order.status = req.body.status;
+  await order.save();
+
+  res.json(order);
 };
