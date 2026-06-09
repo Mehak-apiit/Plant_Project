@@ -292,13 +292,19 @@ All routes are **protected**.
 
 - **POST** `/`
   - Add to cart
-  - Body: `{ product, quantity }`
+  - Body: `{ productId, quantity }`
 - **GET** `/`
   - Returns cart with populated product details
+- **PUT** `/`
+  - Update cart item quantity
+  - Body: `{ productId, quantity }`
 - **DELETE** `/:productId`
   - Removes one item from cart
+- **DELETE** `/`
+  - Clears the cart
 
 ---
+
 
 ## 🧾 Order Routes (`/api/orders`)
 
@@ -467,7 +473,7 @@ Controller: `backend/controllers/couponController.js`
 ### Admin
 
 - **POST** `/` *(admin only; create coupon)*
-  - Body: 
+  - Body:
     - `code`
     - `discountType` (`percentage` | `fixed`)
     - `discountAmount`
@@ -484,7 +490,7 @@ Controller: `backend/controllers/couponController.js`
 
 ### User
 
-- **POST** `/apply` *(typically called while checking out)*
+- **POST** `/apply` *(apply coupon)*
   - Body: `{ code, cartTotal }`
   - Validations:
     - coupon must exist and be `isActive`
@@ -499,6 +505,7 @@ Controller: `backend/controllers/couponController.js`
   - Also increments coupon `usageCount` by 1.
 
 ---
+
 
 ## 🧾 Dummy Output Examples
 
@@ -627,4 +634,5 @@ Controller: `backend/controllers/couponController.js`
 ## 📜 License
 
 ISC
+
 
