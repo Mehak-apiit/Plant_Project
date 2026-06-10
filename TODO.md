@@ -1,12 +1,10 @@
-# TODO.md
+# TODO
 
-- [x] Gather repo info (read README + key backend modules)
-- [x] Read review routes/controllers/models
-- [x] Read wishlist routes/controllers/models
-- [x] Update README.md to include missing API documentation sections:
-  - [x] Add **Review Routes** section for `/api/reviews`
-  - [x] Add **Wishlist Routes** section for `/api/wishlist`
-- [ ] (Optional) Verify route naming consistency with mounted paths
-- [ ] Final check formatting + ensure README is coherent
-
+- [ ] Update `README.md` to include Marketing + Settings endpoints and features.
+- [ ] Fix coupon base path spelling to `/api/coupen`.
+- [ ] Fix Order checkout request/response fields to match `orderController.checkout`.
+- [ ] Fix Cart description to match `cartController` storage (`items` + `totalAmount` and item `price` snapshot).
+- [ ] Ensure Review route descriptions match actual router endpoints and protection.
+- [ ] Ensure Product flash/featured route descriptions match router paths.
+- [ ] Verify `README.md` has no obvious contradictions with `backend/server.js` mounts.
 

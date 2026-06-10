@@ -9,13 +9,25 @@ A production-ready REST API for a plant e-commerce platform. Includes authentica
 - **JWT Authentication** (Bearer token)
 - **Email verification** + **forgot/reset password**
 - **Role-based access control** (Admin / Staff / etc.)
-- **Products**: search, filtering, pagination, featured + flash sale
+- **Products**: search, filtering, pagination, featured products + flash-sale products
 - **Categories & Sub-categories** with slug-based uniqueness
-- **Cart**: add/remove items (per user)
-- **Orders**: create, my-orders, admin order listing, status updates
+- **Cart**: add/remove/update items (per user) with saved price snapshot
+- **Orders / Checkout**: create from cart, order totals (subtotal/tax/shipping/discount), admin order listing + status updates
+- **Coupons**: create/update/delete (admin) + apply coupon (user) with usage limits + date validity
 - **Razorpay**: create payment order + verify signature (secure)
-- **Admin dashboard stats**
+- **Reviews**: users can CRUD reviews; product reviews are public (only approved)
+- **Wishlist**: add/remove/list (protected)
 - **Vendor workflow**: apply, update, admin approve/reject, list all vendors
+- **Support tickets**: create/manage tickets with admin replies + status updates
+- **Marketing**:
+  - Banners (admin CRUD)
+  - Flash sales (admin CRUD, public active only)
+  - Newsletter subscribe + manage subscribers
+- **Settings**:
+  - Admin upsert/delete key/value settings
+  - Authenticated users can read settings
+- **Admin dashboard stats**
+
 
 ---
 
@@ -358,15 +370,19 @@ All user routes are **protected**.
 
 ### User
 
-- **POST** `/`
-  - Create order from provided `orderItems`, `totalPrice`, `shippingAddress`
+- **POST** `/checkout`
+  - Creates order from the user’s **current cart**, calculates totals, optionally applies coupon, then clears the cart
+  - Body:
+    - `shippingAddress` (object)
+    - `paymentMethod` (string)
+    - `couponCode` (optional, string)
+
 - **GET** `/my-orders`
   - Returns orders for the authenticated user
-- **POST** `/checkout`
-  - Creates order from the user’s **current cart** and clears the cart
-  - Body: `{ shippingAddress }`
+
 - **GET** `/:id`
   - Returns order by id with authorization check (user can only view own order)
+
 
 ### Admin
 
