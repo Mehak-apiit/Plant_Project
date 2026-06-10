@@ -215,6 +215,50 @@ All endpoints return **JSON**.
 
 ---
 
+## 🧑‍💻 Support (Tickets) Routes (`/api/support`)
+
+Controller: `backend/controllers/supportController.js`
+
+All support endpoints are **protected**.
+
+### User
+
+- **POST** `/` 
+  - Create a support ticket
+  - Body: `{ subject, message, category, priority }`
+    - `category` (optional): `Order | Payment | Vendor | Product | General` (default: `General`)
+    - `priority` (optional): `low | medium | high` (default: `medium`)
+
+- **GET** `/my`
+  - Get authenticated user’s tickets
+
+- **GET** `/:id`
+  - Get a single ticket + its replies
+  - Ownership/admin authorization check
+
+- **POST** `/:id/reply`
+  - Add a reply to the ticket
+  - Body: `{ message, attachments }`
+    - `attachments` (optional): array of strings (stored in DB)
+  - If sender is admin, ticket `status` is set to `in_progress`
+
+### Admin
+
+- **GET** `/` 
+  - Get all tickets
+
+- **PUT** `/:id/status`
+  - Update ticket status
+  - Body: `{ status }`
+
+Possible ticket statuses:
+- `open`, `in_progress`, `resolved`, `closed`
+
+Ticket number format:
+- `TCK-<timestamp>`
+
+---
+
 ## 👤 Auth Routes (`/api/auth`)
 
 Controller: `backend/controllers/authController.js`
