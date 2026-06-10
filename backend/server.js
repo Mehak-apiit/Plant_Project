@@ -14,6 +14,7 @@ import vendorRoutes from "./routes/vendorRoutes.js";
 import reviewRoutes from "./routes/reviewRoutes.js";
 import wishlistRoutes from "./routes/wishlistRoutes.js";
 import coupenRoutes from "./routes/couponRoutes.js";
+import supportRoutes from "./routes/supportRoutes.js";
 dotenv.config();
 
 const app = express();
@@ -38,6 +39,7 @@ app.use("/api/v1/vendor", vendorRoutes);
 app.use("/api/wishlist", wishlistRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/coupen", coupenRoutes);
+app.use("/api/support",supportRoutes);
 
 // TEST THE ROUTE
 app.get("/", (req, res) => {
