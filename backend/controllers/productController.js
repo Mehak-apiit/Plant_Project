@@ -24,14 +24,14 @@ export const getProducts = async (req, res) => {
     if (req.query.category) query.category = req.query.category;
     if (req.query.subCategory) query.subCategory = req.query.subCategory;
     if (req.query.vendor) query.vendor = req.query.vendor;
-    if (req.query.isFeatured) query.isFeatured = req.query.isFeatured;
-    if (req.query.isPremium) query.isPremium = req.query.isPremium;
+    if (req.query.isFeatured) query.isFeatured = req.query.isFeatured === "true";
+    if (req.query.isPremium) query.isPremium = req.query.isPremium === "true";
 
     // PRICE FILTER
     if (req.query.minPrice || req.query.maxPrice) {
       query.price = {};
-      if (req.query.minPrice) query.price.$gte = req.query.minPrice;
-      if (req.query.maxPrice) query.price.$lte = req.query.maxPrice;
+      if (req.query.minPrice) query.price.$gte = Number(req.query.minPrice);
+      if (req.query.maxPrice) query.price.$lte = Number(req.query.maxPrice);
     }
 
     // SEARCH
@@ -51,7 +51,7 @@ export const getProducts = async (req, res) => {
 
     // PAGINATION
     const page = Number(req.query.page) || 1;
-    const limit = 10;
+    const limit = Number(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
     productsQuery = productsQuery.skip(skip).limit(limit);

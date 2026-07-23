@@ -1,10 +1,12 @@
 # TODO
 
-- [ ] Update `README.md` to include Marketing + Settings endpoints and features.
-- [ ] Fix coupon base path spelling to `/api/coupen`.
-- [ ] Fix Order checkout request/response fields to match `orderController.checkout`.
-- [ ] Fix Cart description to match `cartController` storage (`items` + `totalAmount` and item `price` snapshot).
-- [ ] Ensure Review route descriptions match actual router endpoints and protection.
-- [ ] Ensure Product flash/featured route descriptions match router paths.
-- [ ] Verify `README.md` has no obvious contradictions with `backend/server.js` mounts.
+- [ ] Redesign `frontend/src/pages/Checkout.jsx` into a professional, polished checkout UI (premium layout, validation, loading states, better UX).
+- [x] Fix Razorpay frontend integration by replacing the hardcoded key with `import.meta.env.VITE_RAZORPAY_KEY_ID`.
+
+- [x] Populate `localStorage.user` after login so Navbar can show user name.
+
+- [ ] Add `frontend/.env.example` documenting required env variables (incl. `VITE_RAZORPAY_KEY_ID`).
+
+- [ ] Verify payment flow endpoints remain unchanged (`/api/orders/checkout`, `/api/payment/create-order`, `/api/payment/verify`).
+- [ ] Run frontend to visually confirm checkout page looks great.
 

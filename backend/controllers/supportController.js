@@ -57,7 +57,7 @@ if (!ticket) {
 }
 
 //  Ownership check
-if (ticket.user._id.toString() !== req.user._id.toString() && !req.user.isAdmin) {
+if (ticket.user._id.toString() !== req.user._id.toString() && req.user.role !== "Admin" && req.user.role !== "Super Admin") {
   return res.status(403).json({ message: "Not authorized" });
 }
 
@@ -92,7 +92,7 @@ const reply = await SupportReply.create({
 });
 
 // Update status when admin replies
-if (req.user.isAdmin) {
+if (req.user.role === "Admin" || req.user.role === "Super Admin") {
   ticket.status = "in_progress";
 }
 

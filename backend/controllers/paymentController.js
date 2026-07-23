@@ -25,7 +25,7 @@ export const createPaymentOrder = async (req, res) => {
 
     // 3. Payment options
     const options = {
-      amount: order.totalPrice * 100, // INR → paise
+      amount: order.totalAmount * 100, // INR → paise
       currency: "INR",
       receipt: order._id.toString(),
     };
@@ -75,9 +75,11 @@ export const verifyPayment = async (req, res) => {
       }
 
       // 5. Update order as PAID
-      order.status = "Paid";
-      order.isPaid = true;
-      order.paidAt = new Date();
+      order.paymentStatus = "paid";
+      order.paymentDetails = {
+        transactionId: razorpay_payment_id,
+        paymentDate: new Date(),
+      };
 
       await order.save();
 

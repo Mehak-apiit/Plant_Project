@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import dotenv from "dotenv";
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
@@ -21,7 +22,13 @@ dotenv.config();
 
 const app = express();
 
-// MIDDLEWARE TO ACCEPT THE JSON
+// MIDDLEWARE
+app.use(cors({
+  origin: process.env.FRONTEND_URL
+    ? [process.env.FRONTEND_URL]
+    : ["http://localhost:3000", "http://localhost:5173"],
+  credentials: true
+}));
 app.use(express.json());
 
 // DB CONNECTION
@@ -46,9 +53,22 @@ app.use("/api/marketing", marketingRoutes);
 app.use("/api/settings", settingRoutes);
 
 
+// HEALTH CHECK
+app.get("/health", (req, res) => {
+  res.json({ status: "ok" });
+});
+
 // TEST THE ROUTE
 app.get("/", (req, res) => {
   res.send("API is running...");
+});
+
+// ERROR HANDLING MIDDLEWARE
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(err.status || 500).json({
+    message: err.message || "Internal Server Error",
+  });
 });
 
 const PORT = process.env.PORT || 5000;

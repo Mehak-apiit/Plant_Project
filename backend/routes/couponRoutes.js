@@ -6,16 +6,18 @@ import {
   deleteCoupon,
   applyCoupon
 } from "../controllers/couponController.js";
+import { protect } from "../middleware/authMiddleware.js";
+import { admin } from "../middleware/roleMiddleware.js";
 
 const router = express.Router();
 
-// Admin
-router.post("/", createCoupon);
-router.get("/", getAllCoupons);
-router.put("/:id", updateCoupon);
-router.delete("/:id", deleteCoupon);
+// Admin routes - require authentication + admin role
+router.post("/", protect, admin, createCoupon);
+router.get("/", protect, admin, getAllCoupons);
+router.put("/:id", protect, admin, updateCoupon);
+router.delete("/:id", protect, admin, deleteCoupon);
 
-// User
-router.post("/apply", applyCoupon);
+// User route - require authentication
+router.post("/apply", protect, applyCoupon);
 
 export default router;

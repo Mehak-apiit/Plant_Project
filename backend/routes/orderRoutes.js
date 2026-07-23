@@ -15,10 +15,10 @@ const router = express.Router();
 // USER
 router.post("/checkout", protect, checkout);
 router.get("/my-orders", protect, getMyOrders);
-router.get("/:id", protect, getOrderById);
 
-// ADMIN
-router.get("/", protect, admin, getAllOrders);
+// ADMIN - must come BEFORE /:id
+router.get("/all", protect, admin, getAllOrders);
+router.get("/:id", protect, getOrderById);
 router.put("/:id/status", protect, admin, updateOrderStatus);
 
 export default router;

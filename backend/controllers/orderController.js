@@ -39,14 +39,31 @@ export const checkout = async (req, res) => {
 
     // 🎟️ APPLY COUPON
     if (couponCode) {
-      couponDoc = await Coupon.findOne({ code: couponCode });
+      couponDoc = await Coupon.findOne({ code: couponCode, isActive: true });
 
       if (couponDoc) {
+        const now = new Date();
+        if (now < couponDoc.startDate || now > couponDoc.endDate) {
+          return res.status(400).json({ message: "Coupon expired or not started" });
+        }
+        if (subtotal < couponDoc.minOrderAmount) {
+          return res.status(400).json({ message: `Minimum order amount ₹${couponDoc.minOrderAmount} not met` });
+        }
+        if (couponDoc.usageCount >= couponDoc.maxUsageLimit) {
+          return res.status(400).json({ message: "Coupon usage limit reached" });
+        }
+
         if (couponDoc.discountType === "percentage") {
           discount = (subtotal * couponDoc.discountAmount) / 100;
+          if (couponDoc.maxDiscountAmount > 0) {
+            discount = Math.min(discount, couponDoc.maxDiscountAmount);
+          }
         } else {
           discount = couponDoc.discountAmount;
         }
+
+        // Prevent discount from exceeding subtotal + shipping
+        discount = Math.min(discount, subtotal);
       }
     }
 

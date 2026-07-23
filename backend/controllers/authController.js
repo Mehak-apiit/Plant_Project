@@ -22,22 +22,20 @@ export const registerUser = async (req, res) => {
       email,
       password,
       verificationToken,
+      isEmailVerified: true,
     });
 
-    // 🔗 VERIFY LINK
-    const verifyLink = `http://localhost:5000/api/auth/verify-email/${verificationToken}`;
-
-    // 📩 SEND EMAIL
-    await sendEmail(
-      email,
-      "Verify Your Email",
-      `<h2>Hello ${name}</h2>
-       <p>Click below to verify your email:</p>
-       <a href="${verifyLink}">Verify Email</a>`
-    );
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
     res.status(201).json({
-      message: "User registered. Please check your email to verify.",
+      message: "Registration successful",
+      token,
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
     });
 
   } catch (error) {

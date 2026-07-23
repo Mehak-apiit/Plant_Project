@@ -9,12 +9,13 @@ export const getDashboardStats = async (req, res) => {
     // 2. TOTAL USERS COUNT
     const totalUsers = await User.countDocuments();
 
-    // 3. TOTAL REVENUE CALCULATE
-    const orders = await Order.find();
+    // 3. TOTAL REVENUE CALCULATE (using aggregation for performance)
+    const revenueResult = await Order.aggregate([
+      { $match: { paymentStatus: "paid" } },
+      { $group: { _id: null, total: { $sum: "$totalAmount" } } }
+    ]);
 
-    const totalRevenue = orders.reduce((acc, order) => {
-      return acc + order.totalPrice;
-    }, 0);
+    const totalRevenue = revenueResult.length > 0 ? revenueResult[0].total : 0;
 
     // 4. RESPONSE SEND
     res.json({

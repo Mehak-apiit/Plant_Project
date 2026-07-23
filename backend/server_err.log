@@ -1,0 +1,4 @@
+(node:11236) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"user":1} for model "Cart". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:11236) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"user":1} for model "Wishlist". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:11236) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"slug":1} for model "CMSPage". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
